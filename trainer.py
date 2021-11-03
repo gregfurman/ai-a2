@@ -1,6 +1,7 @@
 import time
 
 import torch
+import numpy as np
 from model import BertClassifier
 from sklearn.metrics import f1_score,classification_report,confusion_matrix
 from torch.utils.data import DataLoader
@@ -27,7 +28,7 @@ class ClassificationModelTrainer:
         self.model = model
         self.optimizer = optimizer
         self.loss_fn = loss_fn
-
+        
         # calculates the training and validation set sizes.
         # context_window size used as random seed for splitting.
         train_size = round(len(dataset)*0.8)
@@ -43,9 +44,10 @@ class ClassificationModelTrainer:
 
         self._target_names = [{value : key for (key, value) in dataset.label_to_id.items()}[i] for i in range(len(dataset.label_to_id))]
 
+        self.start_time = time.time()
+
     def train_step(self):
         total_losses = []
-        hits = 0
         for prompts, labels in self.train_set:
 
             output = self.model.forward(list(prompts))
@@ -56,11 +58,10 @@ class ClassificationModelTrainer:
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), .25)
             self.optimizer.step()
             total_losses.append(loss.detach().cpu().item()) 
-            hits += (torch.argmax(output,dim=1) == labels_tensor).sum().detach()
 
-        return total_losses, hits.cpu().item()/len(self.train_set)
+        return total_losses
 
-    def eval(self, dataloader, model):
+    def eval(self, dataloader, model, print_report):
         y_predictions = []
         y_truths = []
 
@@ -73,15 +74,17 @@ class ClassificationModelTrainer:
             y_predictions.extend(list(y_pred.cpu().numpy()))
             y_truths.extend(list(labels_tensor.cpu().numpy()))
         
-        class_report = classification_report(
-            y_truths,
-            y_predictions,
-            target_names=self._target_names,
-        )
+        if print_report:
+            class_report = classification_report(
+                y_truths,
+                y_predictions,
+                target_names=self._target_names,
+            )
 
-        print(class_report)
+
+            print(class_report)
         
-        return class_report
+        return sum([y==yhat for y, yhat in zip(y_predictions,y_truths)])/len(y_truths)
 
     def train_iteration(self, num_steps=0, iter_num=0, print_logs=False):
 
@@ -101,9 +104,10 @@ class ClassificationModelTrainer:
         eval_start = time.time()
 
         # classification report on validation set
-        self.eval(self.val_set, self.model)
-        
-        logs["evaluation/accuracy"] = hits.cpu().item()/len(self.val_subset)
+        val_accuracy = self.eval(self.val_set, self.model, print_report=print_logs)
+        val_train = self.eval(self.train_set, self.model, print_report=print_logs)
+
+        logs["evaluation/accuracy"] = val_accuracy
 
         logs['time/total'] = time.time() - self.start_time
         logs['time/evaluation'] = time.time() - eval_start
@@ -111,8 +115,6 @@ class ClassificationModelTrainer:
         logs['training/train_loss_std'] = np.std(train_losses)
         logs['training/accuracy'] = train_accuracy
 
-        for k in self.diagnostics:
-            logs[k] = self.diagnostics[k]
 
         if print_logs:
             print('=' * 80)
