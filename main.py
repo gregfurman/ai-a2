@@ -48,7 +48,6 @@ def experiment(
     if model_type == "bert":
 
         model = BertClassifier(
-            hidden_size=variant["hidden_size"],
             num_outputs=output_size,
             context_window=variant["context_window"],
         )
