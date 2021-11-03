@@ -31,16 +31,17 @@ class ClassificationModelTrainer:
         
         # calculates the training and validation set sizes.
         # context_window size used as random seed for splitting.
-        train_size = round(len(dataset)*0.8)
+        train_size = round(len(dataset)*0.4)
         val_size = len(dataset) - train_size
+        test_size = round(len(dataset)*0.4)
 
-        
-        train_subset, val_subset = torch.utils.data.random_split(
-                dataset, [train_size, val_size], generator=torch.Generator().manual_seed(42))
+        train_subset, val_subset, test_set = torch.utils.data.random_split(
+                dataset, [train_size, val_size, test_size], generator=torch.Generator().manual_seed(42))
         
 
         self.train_set = DataLoader(dataset=train_subset, shuffle=True, **kwargs)
         self.val_set = DataLoader(dataset=val_subset, shuffle=False, **kwargs)
+        self.test_set = DataLoader(dataset=test_set, shuffle=False, **kwargs)
 
         self._target_names = [{value : key for (key, value) in dataset.label_to_id.items()}[i] for i in range(len(dataset.label_to_id))]
 
@@ -81,7 +82,7 @@ class ClassificationModelTrainer:
             output_dict=True
         )
 
-        return class_report["macro avg"]
+        return class_report
 
     def train_iteration(self, num_steps=0, iter_num=0, print_logs=False):
 
@@ -101,8 +102,8 @@ class ClassificationModelTrainer:
         eval_start = time.time()
 
         # classification report on validation set
-        val_accuracy = self.eval(self.val_set, self.model)
-        train_accuracy = self.eval(self.train_set, self.model)
+        val_accuracy = self.eval(self.val_set, self.model)["macro avg"]
+        train_accuracy = self.eval(self.train_set, self.model)["macro avg"]
 
         logs["evaluation/accuracy"] = val_accuracy
 

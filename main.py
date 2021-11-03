@@ -1,6 +1,7 @@
 import argparse
 import random
 import torch
+import json
 
 from model import BertClassifier, Baseline
 from trainer import ClassificationModelTrainer
@@ -77,7 +78,8 @@ def experiment(
         loss_fn, 
         dataset=dataset,
         num_workers=variant["num_workers"],
-        batch_size = variant['batch_size']
+        batch_size = variant['batch_size'],
+        collate_fn=collate_fn
     )
     
     epochs = variant['max_iters']
@@ -99,6 +101,9 @@ def experiment(
             outputs["iteration"] = iter+1
             print(json.dumps(outputs),file=training_logs)
             training_logs.flush()
+    
+    with open(f"./training_logs/{env_name}_test_class_report.json","w") as test_classification_report:
+        print(json.dumps(trainer.eval(trainer.test_set, model)),file=test_classification_report)
 
 
 if __name__ == '__main__':
