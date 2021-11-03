@@ -3,6 +3,7 @@ import time
 import torch
 from model import BertClassifier
 from sklearn.metrics import f1_score,classification_report,confusion_matrix
+from torch.utils.data import DataLoader
 
 class ClassificationModelTrainer:
     """
@@ -19,15 +20,28 @@ class ClassificationModelTrainer:
         model, 
         optimizer,
         loss_fn,
-        train_set,
-        val_set,
+        dataset,
+        **kwargs
     ):
         
         self.model = model
         self.optimizer = optimizer
         self.loss_fn = loss_fn
-        self.train_set = train_set
-        self.val_set = val_set
+
+        # calculates the training and validation set sizes.
+        # context_window size used as random seed for splitting.
+        train_size = round(len(dataset)*0.8)
+        val_size = len(dataset) - train_size
+
+        
+        train_subset, val_subset = torch.utils.data.random_split(
+                dataset, [train_size, val_size], generator=torch.Generator().manual_seed(42))
+        
+
+        self.train_set = DataLoader(dataset=train_subset, shuffle=True, **kwargs)
+        self.val_set = DataLoader(dataset=val_subset, shuffle=False, **kwargs)
+
+        self._target_names = [{value : key for (key, value) in dataset.label_to_id.items()}[i] for i in range(len(dataset.label_to_id))]
 
     def train_step(self):
         total_losses = []
@@ -46,7 +60,7 @@ class ClassificationModelTrainer:
 
         return total_losses, hits.cpu().item()/len(self.train_set)
 
-    def eval(dataloader, model):
+    def eval(self, dataloader, model):
         y_predictions = []
         y_truths = []
 
@@ -57,12 +71,12 @@ class ClassificationModelTrainer:
 
             y_pred = torch.argmax(logits,dim=-1)
             y_predictions.extend(list(y_pred.cpu().numpy()))
-            y_truths.extend(list(batch_labels.cpu().numpy()))
+            y_truths.extend(list(labels_tensor.cpu().numpy()))
         
         class_report = classification_report(
             y_truths,
             y_predictions,
-            target_names=[{value : key for (key, value) in test_data.label_to_id.items()}[i] for i in range(len(test_data.label_to_id))],
+            target_names=self._target_names,
         )
 
         print(class_report)
@@ -79,8 +93,6 @@ class ClassificationModelTrainer:
         self.model.train()
 
         train_losses, train_accuracy = self.train_step()
-        if self.scheduler is not None:
-            self.scheduler.step()
 
         logs['time/training'] = time.time() - train_start
 

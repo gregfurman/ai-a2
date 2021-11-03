@@ -40,19 +40,6 @@ def experiment(
         collate_fn = dataset.custom_collate
     else:
         raise NotImplementedError
-    
-    # calculates the training and validation set sizes.
-    # context_window size used as random seed for splitting.
-    train_size = round(len(dataset)*0.8)
-    val_size = len(dataset) - train_size
-
-    batch_size = variant['batch_size']
-    
-    train_subset, val_subset = torch.utils.data.random_split(
-            dataset, [train_size, val_size], generator=torch.Generator().manual_seed(42))
-    
-    train_loader = DataLoader(dataset=train_subset, shuffle=True, batch_size=batch_size, num_workers=variant["num_workers"])
-    val_loader = DataLoader(dataset=val_subset, shuffle=False, batch_size=batch_size, num_workers=variant["num_workers"])
 
     vocab_size = len(dataset.vocab)
     output_size = len(dataset.label_to_id)
@@ -88,8 +75,9 @@ def experiment(
         model,
         optimizer,
         loss_fn, 
-        train_set=train_loader,
-        val_set=val_loader,
+        dataset=dataset,
+        num_workers=variant["num_workers"],
+        batch_size = variant['batch_size']
     )
     
     epochs = variant['max_iters']
