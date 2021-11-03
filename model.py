@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from transformers import  BertTokenizerFast, BertModel
+from transformers import  BertTokenizer, BertModel
 
 # import torch
 # import torch.nn as nn
@@ -24,20 +24,16 @@ class BertClassifier(nn.Module):
     def __init__(
         self,      
         num_outputs,   
-        hidden_size=64,
         context_window=200,
     ):
         super(BertClassifier,self).__init__()
 
-        self.hidden_size = hidden_size
         self.classes = num_outputs
 
         self.context_window = context_window
 
         self.model = BertModel.from_pretrained('bert-base-uncased', output_hidden_states=True)
-        self.tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
-
-        self.hidden_size = hidden_size
+        self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
         self.context_window = context_window
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

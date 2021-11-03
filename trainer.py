@@ -102,8 +102,8 @@ class ClassificationModelTrainer:
         eval_start = time.time()
 
         # classification report on validation set
-        val_accuracy = self.eval(self.val_set, self.model)["macro avg"]
-        train_accuracy = self.eval(self.train_set, self.model)["macro avg"]
+        val_accuracy = self.eval(self.val_set, self.model)["macro avg"]["f1-score"]
+        train_accuracy = self.eval(self.train_set, self.model)["macro avg"]["f1-score"]
 
         logs["evaluation/accuracy"] = val_accuracy
 
