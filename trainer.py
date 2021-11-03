@@ -32,8 +32,8 @@ class ClassificationModelTrainer:
         # calculates the training and validation set sizes.
         # context_window size used as random seed for splitting.
         train_size = round(len(dataset)*0.4)
-        val_size = len(dataset) - train_size
         test_size = round(len(dataset)*0.4)
+        val_size = len(dataset) - (train_size + test_size)
 
         train_subset, val_subset, test_set = torch.utils.data.random_split(
                 dataset, [train_size, val_size, test_size], generator=torch.Generator().manual_seed(42))
