@@ -29,7 +29,7 @@ class data(Dataset):
         current_id = 0
        
         for line in df["tweet"]:
-            sen = re.sub(r'[^\w\s]','',line).lower()
+            sen = re.sub(r'[^\w\s]','',line).lower().split(" ")
             sentences.append(sen)
             for word in sen:
                
@@ -55,7 +55,7 @@ class data(Dataset):
 
     def __getitem__(self, index):
         
-        word_ids = torch.tensor(list(map(lambda x: self.vocab[x],self.sentences[index].split(" "))),device=self.device)
+        word_ids = torch.tensor(list(map(lambda x: self.vocab[x],self.sentences[index])),device=self.device)
         label_ids = torch.tensor(self.label_to_id[self.labels[index]],device=self.device)
         
         return word_ids, label_ids
@@ -77,5 +77,5 @@ class dataBERT(data):
     def __getitem__(self, index):
         
         # label_ids = torch.tensor(self.label_to_id[self.labels[index]])
-        return self.sentences[index], self.label_to_id[self.labels[index]]
+        return " ".join(self.sentences[index]), self.label_to_id[self.labels[index]]
 

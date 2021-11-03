@@ -47,7 +47,7 @@ class BertClassifier(nn.Module):
         """
         
         encoding = self.tokenizer(
-            context, 
+            list(context), 
             max_length=self.context_window, 
             truncation=True,padding='max_length',
             add_special_tokens=True,
@@ -93,9 +93,9 @@ class Baseline(nn.Module):
 
         self.output_layer = nn.Linear(hidden_size,self.classes)        
 
-    def forward(self, input_data):
-       
-        embeddings = self.embedding(input_data)
+    def forward(self, context):
+
+        embeddings = self.embedding(context)
 
         out, _ = self.lstm(embeddings)
         out = out[:,-1,:]

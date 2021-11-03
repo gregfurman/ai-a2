@@ -38,7 +38,6 @@ class ClassificationModelTrainer:
         train_subset, val_subset, test_set = torch.utils.data.random_split(
                 dataset, [train_size, val_size, test_size], generator=torch.Generator().manual_seed(42))
         
-
         self.train_set = DataLoader(dataset=train_subset, shuffle=True, **kwargs)
         self.val_set = DataLoader(dataset=val_subset, shuffle=False, **kwargs)
         self.test_set = DataLoader(dataset=test_set, shuffle=False, **kwargs)
@@ -51,7 +50,7 @@ class ClassificationModelTrainer:
         total_losses = []
         for prompts, labels in self.train_set:
 
-            output = self.model.forward(list(prompts))
+            output = self.model.forward(prompts)
             labels_tensor = torch.tensor(labels,device=self.model.device)
             loss = self.loss_fn(output,labels_tensor)
             self.optimizer.zero_grad()
@@ -105,7 +104,7 @@ class ClassificationModelTrainer:
         val_accuracy = self.eval(self.val_set, self.model)["macro avg"]["f1-score"]
         train_accuracy = self.eval(self.train_set, self.model)["macro avg"]["f1-score"]
 
-        logs["evaluation/accuracy"] = val_accuracy
+        logs["validation/accuracy"] = val_accuracy
 
         logs['time/total'] = time.time() - self.start_time
         logs['time/evaluation'] = time.time() - eval_start

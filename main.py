@@ -90,8 +90,8 @@ def experiment(
         for iter in range(epochs):
             outputs = trainer.train_iteration(iter_num=iter+1, print_logs=True)
             
-            if outputs['evaluation/accuracy'] >= max_accuracy:
-                max_accuracy = outputs['evaluation/accuracy']
+            if outputs['validation/accuracy'] >= max_accuracy:
+                max_accuracy = outputs['validation/accuracy']
                 torch.save(model,f"{variant['model_out']}/{variant['env']}.pt")
             
             if log_to_wandb:
