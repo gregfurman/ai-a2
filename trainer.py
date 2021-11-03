@@ -61,7 +61,7 @@ class ClassificationModelTrainer:
 
         return total_losses
 
-    def eval(self, dataloader, model, print_report):
+    def eval(self, dataloader, model):
         y_predictions = []
         y_truths = []
 
@@ -74,17 +74,14 @@ class ClassificationModelTrainer:
             y_predictions.extend(list(y_pred.cpu().numpy()))
             y_truths.extend(list(labels_tensor.cpu().numpy()))
         
-        if print_report:
-            class_report = classification_report(
-                y_truths,
-                y_predictions,
-                target_names=self._target_names,
-            )
+        class_report = classification_report(
+            y_truths,
+            y_predictions,
+            target_names=self._target_names,
+            output_dict=True
+        )
 
-
-            print(class_report)
-        
-        return sum([y==yhat for y, yhat in zip(y_predictions,y_truths)])/len(y_truths)
+        return class_report["macro avg"]
 
     def train_iteration(self, num_steps=0, iter_num=0, print_logs=False):
 
@@ -95,7 +92,7 @@ class ClassificationModelTrainer:
 
         self.model.train()
 
-        train_losses, train_accuracy = self.train_step()
+        train_losses = self.train_step()
 
         logs['time/training'] = time.time() - train_start
 
@@ -104,8 +101,8 @@ class ClassificationModelTrainer:
         eval_start = time.time()
 
         # classification report on validation set
-        val_accuracy = self.eval(self.val_set, self.model, print_report=print_logs)
-        val_train = self.eval(self.train_set, self.model, print_report=print_logs)
+        val_accuracy = self.eval(self.val_set, self.model)
+        train_accuracy = self.eval(self.train_set, self.model)
 
         logs["evaluation/accuracy"] = val_accuracy
 
