@@ -111,8 +111,8 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', type=str, default='data/Train.csv')
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--model_type', type=str, default='dt')  # bert for BERT model, lstm for LSTM baseline
-    parser.add_argument('--embed_dim', type=int, default=64)
-    parser.add_argument('--hidden_size', type=int, default=64)
+    parser.add_argument('--embed_dim', type=int, default=256)
+    parser.add_argument('--hidden_size', type=int, default=128)
     parser.add_argument('--n_layers', type=int, default=2)
     parser.add_argument('--dropout', type=float, default=0.1)
     parser.add_argument('--learning_rate', '-lr', type=float, default=1e-4)

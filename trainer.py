@@ -68,7 +68,7 @@ class ClassificationModelTrainer:
         for prompts, labels in dataloader:
 
             labels_tensor = torch.tensor(labels,device=model.device)
-            logits = model(list(prompts))
+            logits = model(prompts)
 
             y_pred = torch.argmax(logits,dim=-1)
             y_predictions.extend(list(y_pred.cpu().numpy()))
