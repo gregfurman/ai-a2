@@ -34,31 +34,30 @@ def experiment(
     
     
     if model_type == "bert":
-        dataset = dataBERT(filename)
-        collate_fn = None
+        dataset = dataBERT(filename,variant["context_window"])
     elif model_type == "lstm":
         dataset = data(filename)
-        collate_fn = dataset.custom_collate
     else:
         raise NotImplementedError
-
+        
+    collate_fn = dataset.custom_collate
     vocab_size = len(dataset.vocab)
     output_size = len(dataset.label_to_id)
 
-    tweet_lengths = np.array([len(s) for s in dataset.sentences])
+    # tweet_lengths = np.array([len(s) for s in dataset.sentences])
 
-    print("========== Dataset ==========\n")
+    # print("========== Dataset ==========\n")
     
-    print(
-        f"Vocab size: {vocab_size}",
-        f"No. of classes: {output_size}",
-        f"No. of Tweets in dataset: {len(dataset.sentences)}",
-        f"Max Tweet length: {np.max(tweet_lengths)}",
-        f"Mean Tweet length: {np.mean(tweet_lengths)}",
-        f"Std Tweet length: {np.std(tweet_lengths)}",
+    # print(
+    #     f"Vocab size: {vocab_size}",
+    #     f"No. of classes: {output_size}",
+    #     f"No. of Tweets in dataset: {len(dataset.sentences)}",
+    #     f"Max Tweet length: {np.max(tweet_lengths)}",
+    #     f"Mean Tweet length: {np.mean(tweet_lengths)}",
+    #     f"Std Tweet length: {np.std(tweet_lengths)}",
 
-        sep="\n",end="\n\n"
-    ) 
+    #     sep="\n",end="\n\n"
+    # ) 
 
 
     if model_type == "bert":

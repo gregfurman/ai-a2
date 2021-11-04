@@ -33,7 +33,7 @@ class BertClassifier(nn.Module):
         self.context_window = context_window
 
         self.model = BertModel.from_pretrained('bert-base-uncased', output_hidden_states=True)
-        self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+        # self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
         self.context_window = context_window
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -45,17 +45,9 @@ class BertClassifier(nn.Module):
         Forward method for QA model.
         :param prompt_questions: list of questions and text pairs used for question-answering.  
         """
-        
-        encoding = self.tokenizer(
-            list(context), 
-            max_length=self.context_window, 
-            truncation=True,padding='max_length',
-            add_special_tokens=True,
-            return_tensors='pt'
-        )
 
-        output = self.model(input_ids=encoding['input_ids'].to(device=self.device),
-                attention_mask=encoding['attention_mask'].to(device=self.device))
+        output = self.model(input_ids=context['input_ids'].to(device=self.device),
+                attention_mask=context['attention_mask'].to(device=self.device))
 
         logits = self.output_layer(output["pooler_output"].to(device=self.device))
 
