@@ -2,7 +2,7 @@ import argparse
 import random
 import torch
 import json
-
+import numpy as np
 from model import BertClassifier, Baseline
 from trainer import ClassificationModelTrainer
 from dataset import dataBERT, data
@@ -44,6 +44,22 @@ def experiment(
 
     vocab_size = len(dataset.vocab)
     output_size = len(dataset.label_to_id)
+
+    tweet_lengths = np.array([len(s) for s in dataset.sentences])
+
+    print("========== Dataset ==========\n")
+    
+    print(
+        f"Vocab size: {vocab_size}",
+        f"No. of classes: {output_size}",
+        f"No. of Tweets in dataset: {len(dataset.sentences)}",
+        f"Max Tweet length: {np.max(tweet_lengths)}",
+        f"Mean Tweet length: {np.mean(tweet_lengths)}",
+        f"Std Tweet length: {np.std(tweet_lengths)}",
+
+        sep="\n",end="\n\n"
+    ) 
+
 
     if model_type == "bert":
 
