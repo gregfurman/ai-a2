@@ -33,9 +33,7 @@ class BertClassifier(nn.Module):
         self.context_window = context_window
 
         self.model = BertModel.from_pretrained('bert-base-uncased', output_hidden_states=True)
-        # self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
-        self.context_window = context_window
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         self.output_layer = nn.Linear(self.model.config.hidden_size, self.classes)

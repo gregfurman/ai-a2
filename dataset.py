@@ -7,7 +7,8 @@ import torch
 from torch.nn.utils.rnn import pack_sequence
 from torch.utils.data import DataLoader
 from torch.nn.utils.rnn import pad_sequence
-from transformers import BertTokenizerFast
+from transformers import BertTokenizer
+from collections import defaultdict
 
 class data(Dataset):
 
@@ -79,7 +80,7 @@ class dataBERT(Dataset):
 
         
     def read_file(self,filename,window_length):
-        tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
+        tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
         dirname = os.path.dirname(__file__)
         filename = os.path.join(dirname, filename)
 
@@ -88,13 +89,14 @@ class dataBERT(Dataset):
         vocab = {}
         current_id = 0
        
-        sentences = tokenizer(
+        tokenized_sents = tokenizer(
             [tweet for tweet in df["tweet"]], 
             max_length=window_length, 
             truncation=True,padding='max_length',
             add_special_tokens=True,
-            return_tensors='pt'
-        ).to(device=self.device)
+        )
+
+        sentences = [{'input_ids':input_id, 'attention_mask':att_mask }  for input_id, att_mask in zip(tokenized_sents['input_ids'],tokenized_sents['attention_mask'])]
 
         labels = list(df["type"])
         labels_id = {}
@@ -117,14 +119,16 @@ class dataBERT(Dataset):
         return self.sentences[index], self.label_to_id[self.labels[index]]
 
     def custom_collate(self,batch):
-        input_ids = []
-        att_masks = []
-        targets = []
+        targets = []      
+
+        collated_encodings = defaultdict(list)
 
         for encoding,label in batch:
-            input_ids.append(encoding.ids)
-            att_masks.append(encoding.attention_mask)
+            for k, v in encoding.items():
+                collated_encodings[k].append(v)
             targets.append(label)
+        
+        collated_encodings['input_ids'] = torch.tensor(collated_encodings['input_ids']).to(device=self.device)
+        collated_encodings['attention_mask'] = torch.tensor(collated_encodings['attention_mask']).to(device=self.device)
 
-        context = {'input_ids' : torch.tensor(input_ids).to(device=self.device), 'attention_mask' : torch.tensor(att_masks).to(device=self.device)}
-        return [context , torch.tensor(targets).to(device=self.device)]
+        return [collated_encodings , torch.tensor(targets).to(device=self.device)]
