@@ -34,7 +34,7 @@ def experiment(
     
     
     if model_type == "bert":
-        dataset = dataBERT(filename,variant["context_window"])
+        dataset = dataBERT(filename)
     elif model_type == "lstm":
         dataset = data(filename)
     else:
