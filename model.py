@@ -25,12 +25,13 @@ class BertClassifier(nn.Module):
         self,      
         num_outputs,   
         context_window=200,
+        **kwargs
     ):
         super(BertClassifier,self).__init__()
 
         self.classes = num_outputs
 
-        self.model = BertModel.from_pretrained('bert-base-uncased', output_hidden_states=True)
+        self.model = BertModel.from_pretrained('bert-base-uncased', output_hidden_states=True,**kwargs)
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
         self.context_window = context_window

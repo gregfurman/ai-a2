@@ -65,6 +65,9 @@ def experiment(
         model = BertClassifier(
             num_outputs=output_size,
             context_window=variant["context_window"],
+            num_hidden_layers=variant["n_layers"], 
+            num_attention_heads=variant["n_heads"],
+            hidden_size=variant["hidden_size"],
         )
     elif model_type == "lstm":
 
@@ -133,6 +136,7 @@ if __name__ == '__main__':
     parser.add_argument('--embed_dim', type=int, default=256)
     parser.add_argument('--hidden_size', type=int, default=128)
     parser.add_argument('--n_layers', type=int, default=2)
+    parser.add_argument('--n_heads', type=int, default=8)
     parser.add_argument('--dropout', type=float, default=0.1)
     parser.add_argument('--learning_rate', '-lr', type=float, default=1e-4)
     parser.add_argument('--weight_decay', '-wd', type=float, default=1e-4)
