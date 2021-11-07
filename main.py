@@ -35,12 +35,15 @@ def experiment(
     
     if model_type == "bert":
         dataset = dataBERT(filename)
+        collate_fn = None
+
     elif model_type == "lstm":
         dataset = data(filename)
+        collate_fn = dataset.custom_collate
+
     else:
         raise NotImplementedError
         
-    collate_fn = dataset.custom_collate
     vocab_size = len(dataset.vocab)
     output_size = len(dataset.label_to_id)
 
