@@ -110,7 +110,7 @@ def experiment(
             
             if outputs['validation/accuracy'] >= max_accuracy:
                 max_accuracy = outputs['validation/accuracy']
-                torch.save(mode.state_dict(),f"{variant['model_out']}/{variant['env']}.pt")
+                torch.save(model.state_dict(),f"{variant['model_out']}/{variant['env']}.pt")
             
             if log_to_wandb:
                 wandb.log(outputs)
@@ -124,7 +124,7 @@ def experiment(
         model.load_state_dict(torch.load(f"{variant['model_out']}/{variant['env']}.pt"))
         model.eval()
 
-        print(json.dumps(trainer.eval(trainer.test_set, best_model)),file=test_classification_report)
+        print(json.dumps(trainer.eval(trainer.test_set, model)),file=test_classification_report)
 
 
 if __name__ == '__main__':
