@@ -105,14 +105,12 @@ def experiment(
     with open(f"./training_logs/{env_name}.json","w") as training_logs:
 
         max_accuracy = 0
-        best_model = model
         for iter in range(epochs):
             outputs = trainer.train_iteration(iter_num=iter+1, print_logs=True)
             
             if outputs['validation/accuracy'] >= max_accuracy:
                 max_accuracy = outputs['validation/accuracy']
-                best_model = model
-                torch.save(best_model,f"{variant['model_out']}/{variant['env']}.pt")
+                torch.save(mode.state_dict(),f"{variant['model_out']}/{variant['env']}.pt")
             
             if log_to_wandb:
                 wandb.log(outputs)
@@ -121,9 +119,11 @@ def experiment(
             print(json.dumps(outputs),file=training_logs)
             training_logs.flush()
     
-    best_model.eval()
     
     with open(f"./training_logs/{env_name}_test_class_report.json","w") as test_classification_report:
+        model.load_state_dict(torch.load(f"{variant['model_out']}/{variant['env']}.pt"))
+        model.eval()
+
         print(json.dumps(trainer.eval(trainer.test_set, best_model)),file=test_classification_report)
 
 
