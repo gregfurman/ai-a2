@@ -99,32 +99,37 @@ def experiment(
         collate_fn=collate_fn
     )
     
-    epochs = variant['max_iters']
+    if variant.get("train"):
 
-    print("========== Beginning Training ==========\n")
-    with open(f"./training_logs/{env_name}.json","w") as training_logs:
+        epochs = variant['max_iters']
 
-        max_accuracy = 0
-        best_model = model
-        for iter in range(epochs):
-            outputs = trainer.train_iteration(iter_num=iter+1, print_logs=True)
-            
-            if outputs['validation/accuracy'] >= max_accuracy:
-                max_accuracy = outputs['validation/accuracy']
-                best_model = model
-                torch.save(best_model,f"{variant['model_out']}/{variant['env']}.pt")
-            
-            if log_to_wandb:
-                wandb.log(outputs)
-            
-            outputs["iteration"] = iter+1
-            print(json.dumps(outputs),file=training_logs)
-            training_logs.flush()
+        print("========== Beginning Training ==========\n")
+
+        with open(f"./training_logs/{env_name}.json","w") as training_logs:
+
+            max_accuracy = 0
+            for iter in range(epochs):
+                outputs = trainer.train_iteration(iter_num=iter+1, print_logs=True)
+                
+                if outputs['validation/accuracy'] >= max_accuracy:
+                    max_accuracy = outputs['validation/accuracy']
+                    torch.save(model.state_dict(),f"{variant['model_out']}/{variant['env']}.pt")
+                
+                if log_to_wandb:
+                    wandb.log(outputs)
+                
+                outputs["iteration"] = iter+1
+                print(json.dumps(outputs),file=training_logs)
+                training_logs.flush()
     
-    best_model.eval()
-    
-    with open(f"./training_logs/{env_name}_test_class_report.json","w") as test_classification_report:
-        print(json.dumps(trainer.eval(trainer.test_set, best_model)),file=test_classification_report)
+    if variant.get("evaluate"):
+        print(f"========== Evaluating '{variant['env']}' ==========\n")
+
+        with open(f"./training_logs/{env_name}_test_class_report.json","w") as test_classification_report:
+            model.load_state_dict(torch.load(f"{variant['model_out']}/{variant['env']}.pt"))
+            model.eval()
+
+            print(json.dumps(trainer.eval(trainer.test_set, model)),file=test_classification_report)
 
 
 if __name__ == '__main__':
@@ -143,10 +148,12 @@ if __name__ == '__main__':
     parser.add_argument('--max_iters', type=int, default=100)
     parser.add_argument('--device', type=str, default='cpu')
     parser.add_argument('--log_to_wandb', '-w', type=bool)
-    parser.add_argument('--context_window', '-state', type=int, default=170) # size of context window for qa, or size of each state for dt
+    parser.add_argument('--context_window', '-window', type=int, default=170) # size of context window
     parser.add_argument('--vocab_size', '-vocab', type=int, default=5)
     parser.add_argument('--model_out', type=str, default="./saved_models")
     parser.add_argument('--num_workers', type=int, default=2) # workers for dataloader
+    parser.add_argument('--evaluate', type=bool) # whether to evaluate model on test set
+    parser.add_argument('--train', type=bool) # whether to train model
 
     args = vars(parser.parse_args())
 
