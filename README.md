@@ -13,7 +13,7 @@ pip install -r requirements.txt
 ```
 
 ## Usage
-
+We used Google Colab for training and evaluation as GPUs offered a significant train and evaluation speedup. The link to the Colab notebook can be found [here](https://colab.research.google.com/drive/1mHQTh3EB2RfgMfvK6sxyCHm4drEmg0MG#scrollTo=TSve7a1a8ljr).
 ```bash
 
 # Train and evaluate BERT model
@@ -43,7 +43,6 @@ All saved models are written to the ````/saved_models/```` directory in a ```.pt
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
