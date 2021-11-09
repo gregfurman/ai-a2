@@ -1,0 +1,48 @@
+# The training logs JSON file was corrupted for this run upon download. 
+# We did, however, output logs for each iteration to command line which is shown below.
+
+================================================================================
+Iteration 1
+time/training: 543.3471336364746
+validation/accuracy: 0.9893633834800897
+time/total: 839.2621128559113
+time/evaluation: 295.9137260913849
+training/train_loss_mean: 0.1132874108564501
+training/train_loss_std: 0.26773018529817927
+training/accuracy: 0.9932323976283012
+================================================================================
+Iteration 2
+time/training: 542.618976354599
+validation/accuracy: 0.9866991621939626
+time/total: 1679.226951599121
+time/evaluation: 296.01216220855713
+training/train_loss_mean: 0.0018633085744149294
+training/train_loss_std: 0.01980332396818497
+training/accuracy: 0.996758922875714
+================================================================================
+Iteration 3
+time/training: 543.5044527053833
+validation/accuracy: 0.9929331323613247
+time/total: 2520.0979676246643
+time/evaluation: 297.36477994918823
+training/train_loss_mean: 0.001987308122693858
+training/train_loss_std: 0.026243130547222836
+training/accuracy: 0.9983424012849987
+================================================================================
+Iteration 4
+time/training: 545.0510356426239
+validation/accuracy: 0.9967827141273078
+time/total: 3363.450727701187
+time/evaluation: 296.8751542568207
+training/train_loss_mean: 0.0012974833868632798
+training/train_loss_std: 0.020025662263167293
+training/accuracy: 0.9983923643721605
+================================================================================
+Iteration 5
+time/training: 542.1777021884918
+validation/accuracy: 0.9915979160817248
+time/total: 4202.793356895447
+time/evaluation: 295.775892496109
+training/train_loss_mean: 0.0009437969001307974
+training/train_loss_std: 0.016279248676404273
+training/accuracy: 0.9983923643721605
